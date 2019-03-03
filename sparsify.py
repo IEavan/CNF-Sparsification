@@ -26,7 +26,7 @@ class k_CNF():
             self.literals = self.literals.union(clause)
 
     def to_csv(self, file_path="output.csv"):
-        with open(file_path, 'w', ) as formula_file:
+        with open(file_path, 'w') as formula_file:
             formula_writer = csv.writer(formula_file)
             for clause in self.clauses:
                 formula_writer.writerow(list(clause))
@@ -59,9 +59,8 @@ class k_CNF():
 
     def best_flower(self, epsilon):
         """ Returns the best flower in the formula if it exists, -1 otherwise """
-        thetas = []
+        thetas = [self.theta(i, epsilon) for i in range(self.k)] # precompute thetas
         for level in range(1, self.k + 1):
-            thetas.append(self.theta(level - 1, epsilon)) # precompute theta
             for heart_size in range(level, 0, -1):
                 clauses_at_level = self.get_clauses_at_level(level)
                 for heart in itertools.product(self.literals, repeat=heart_size):
@@ -88,23 +87,52 @@ class k_CNF():
             string_parts.append("{}\n".format(set(clause)))
         return "".join(string_parts)
 
+class SparseTree():
+    def __init__(self, kcnf):
+        self.formula = kcnf
+        self.petal_child = None
+        self.heart_child = None
 
-def sparsify(kcnf, epsilon):
-    #print("CNF")
-    #print(kcnf)
-    best_flower = kcnf.best_flower(epsilon)
-    #print("best flower: {}".format(best_flower))
-    if best_flower != -1:
-        heart = frozenset.intersection(*list(best_flower))
-        #print("heart is: {}",format(heart))
-        petals = set([clause.difference(heart) for clause in best_flower])
-        #print("petals is: {}",format(petals))
-        cnf_heart = kcnf.union(k_CNF(clauses=set([heart])))
-        cnf_heart.reduce()
-        #print("reduced heart: {}".format(cnf_heart))
-        cnf_petals = kcnf.union(k_CNF(clauses=petals))
-        cnf_petals.reduce()
-        #print("reduced petals: {}".format(cnf_petals))
-        return sparsify(cnf_heart, epsilon) + sparsify(cnf_petals, epsilon)
-    else:
-        return [kcnf]
+    def build_tree(self, epsilon):
+        best_flower = self.formula.best_flower(epsilon)
+        if best_flower != -1:
+            heart = frozenset.intersection(*list(best_flower))
+            petals = set([clause.difference(heart) for clause in best_flower])
+
+            cnf_heart = self.formula.union(k_CNF(clauses=set([heart])))
+            cnf_petals = self.formula.union(k_CNF(clauses=petals))
+
+            cnf_heart.reduce()
+            cnf_petals.reduce()
+
+            self.heart_child = SparseTree(cnf_heart)
+            self.petal_child = SparseTree(cnf_petals)
+            self.heart_child.build_tree(epsilon)
+            self.petal_child.build_tree(epsilon)
+
+    def is_leaf(self):
+        return self.petal_child is None and self.heart_child is None
+
+    def tree_height(self):
+        return max(1 + self.tree_height(self.heart_child),
+                   1 + self.tree_height(self.petal_child))
+
+    def num_formulas(self):
+        if self.is_leaf():
+            return 1
+        else:
+            return self.heart_child.num_formulas() + self.petal_child.num_formulas()
+
+    def num_petal_branches(self):
+        if self.is_leaf():
+            return 0
+        else:
+            return self.heart_child.num_petal_branches() + \
+                   self.petal_child.num_petal_branches() + 1
+
+    def get_leaf_formulas(self):
+        if self.is_leaf():
+            return [self.formula]
+        else:
+            return self.heart_child.get_leaf_formulas() + \
+                   self.petal_child.get_leaf_formulas()

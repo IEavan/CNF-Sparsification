@@ -8,7 +8,10 @@ def gen_uniform(k=3, n=10, m=100):
 
     clauses = set()
     for i in range(m):
-        clause = frozenset(np.random.choice(literals, size=k, replace=False))
+        while True:
+            clause = frozenset(np.random.choice(literals, size=k, replace=False))
+            if not clause in clauses:
+                break
         clauses.add(clause)
 
     return k_CNF(clauses=clauses)
