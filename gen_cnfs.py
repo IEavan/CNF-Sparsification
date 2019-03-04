@@ -3,7 +3,7 @@ import numpy as np
 from sparsify import k_CNF
 
 def gen_uniform(k=3, n=10, m=100):
-    variables = np.arange(10) + 1
+    variables = np.arange(n) + 1
     literals = np.concatenate((variables, variables * -1))
 
     clauses = set()

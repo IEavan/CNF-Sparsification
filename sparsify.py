@@ -41,7 +41,7 @@ class k_CNF():
         if size <= 0:
             return 2
         else:
-            delta = int((self.k ** 2 * 2 ** (2 * self.k + 2)) / (epsilon ** 2)) + 1
+            delta = int((self.k ** 2 * 2 ** (2 * self.k + 2)) / (epsilon ** 2))
             gamma = (4 * delta) ** (2 ** (size - 1) - 1)
             return max(2, gamma * delta)
 
@@ -113,9 +113,12 @@ class SparseTree():
     def is_leaf(self):
         return self.petal_child is None and self.heart_child is None
 
-    def tree_height(self):
-        return max(1 + self.tree_height(self.heart_child),
-                   1 + self.tree_height(self.petal_child))
+    def height(self):
+        if self.is_leaf():
+            return 1
+        else:
+            return max(1 + self.heart_child.height(),
+                       1 + self.petal_child.height())
 
     def num_formulas(self):
         if self.is_leaf():
