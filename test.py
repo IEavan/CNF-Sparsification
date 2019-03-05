@@ -52,9 +52,15 @@ def run_examples(k=3, eps=10, n_max=30, step=1):
                                    petal_bounds[i]])
 
 # TODO Gen example
+def example(k=3, n=3, m=9, eps=10):
+    cnf = gen_uniform(k=k, n=n, m=m)
+    tree = sparsify.SparseTree(cnf)
+    tree.build_tree(eps)
+    print(tree.to_latex())
 
 if __name__ == "__main__":
-    run_examples(eps=0.01, n_max=10)
-    run_examples(eps=0.1, n_max=10)
-    run_examples(eps=1, n_max=10)
-    run_examples(eps=10, n_max=10)
+    example(n=4, m=5)
+    # run_examples(eps=0.01, n_max=15)
+    # run_examples(eps=0.1, n_max=15)
+    # run_examples(eps=1, n_max=15)
+    # run_examples(eps=10, n_max=15)

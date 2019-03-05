@@ -74,6 +74,19 @@ class k_CNF():
                         return flower
         return -1
 
+    def to_latex(self):
+        string_parts = []
+        for clause in self.clauses:
+            string_parts.append("(")
+            for literal in clause:
+                if literal > 0:
+                    string_parts.append("\\neg ")
+                string_parts.append("x_{" + str(abs(literal)) + "}")
+                string_parts.append(" \\lor ")
+            string_parts[-1] = ")"
+            string_parts.append(" \\land ")
+        return "".join(string_parts[:-1])
+
     def __len__(self):
         return len(self.clauses)
 
@@ -86,6 +99,7 @@ class k_CNF():
         for clause in self.clauses:
             string_parts.append("{}\n".format(set(clause)))
         return "".join(string_parts)
+
 
 class SparseTree():
     def __init__(self, kcnf):
@@ -139,3 +153,20 @@ class SparseTree():
         else:
             return self.heart_child.get_leaf_formulas() + \
                    self.petal_child.get_leaf_formulas()
+
+    def to_latex(self):
+        all_tex = self.__helper("")
+        string_parts = ["\\begin{align*}\n"]
+        for path, tex in all_tex.items():
+            string_parts.append("\t{} : &{}\\\\\n".format(path, tex))
+        string_parts.append("\\end{align*}")
+        return "".join(string_parts)
+
+    def __helper(self, path):
+        tex = {path: self.formula.to_latex()}
+        if self.is_leaf():
+            return tex
+        else:
+            return {**self.heart_child.__helper(path + "h"),
+                    **self.petal_child.__helper(path + "p"),
+                    **tex}
