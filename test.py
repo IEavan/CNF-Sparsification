@@ -44,23 +44,24 @@ def run_examples(k=3, eps=10, n_max=30, step=1):
     with open("table_sparsity_{}_{}.csv".format(k ,eps), 'w') as table:
         table_writer = csv.writer(table)
         table_writer.writerow(["k", "epsilon", "n", "achieved_sparsity", "bound",
-                               "num_formulas", "tree_height", "num_petal_branches", "petal_bound"])
+            "num_formulas", "tree_height", "num_petal_branches", "petal_bound"])
         for i, n in enumerate(range(max(step, k),n_max + 1,step)):
             table_writer.writerow([k, eps, n, sparsity_results[i],
-                                   sparsity_bound[i], num_formulas[i],
-                                   tree_height[i], num_petal_branches[i],
-                                   petal_bounds[i]])
+                sparsity_bound[i], num_formulas[i],
+                tree_height[i], num_petal_branches[i],
+                petal_bounds[i]])
 
 # TODO Gen example
-def example(k=3, n=3, m=9, eps=10):
+def example(k=3, n=3, m=5, eps=100):
     cnf = gen_uniform(k=k, n=n, m=m)
     tree = sparsify.SparseTree(cnf)
     tree.build_tree(eps)
     print(tree.to_latex())
 
 if __name__ == "__main__":
-    example(n=4, m=5)
-    # run_examples(eps=0.01, n_max=15)
-    # run_examples(eps=0.1, n_max=15)
-    # run_examples(eps=1, n_max=15)
-    # run_examples(eps=10, n_max=15)
+    #test_simple(eps=100)
+    example()
+    #run_examples(eps=0.01, n_max=15)
+    #run_examples(eps=0.1, n_max=15)
+    #run_examples(eps=1, n_max=15)
+    #run_examples(eps=10, n_max=15)

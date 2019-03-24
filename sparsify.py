@@ -61,9 +61,9 @@ class k_CNF():
         """ Returns the best flower in the formula if it exists, -1 otherwise """
         thetas = [self.theta(i, epsilon) for i in range(self.k)] # precompute thetas
         for level in range(1, self.k + 1):
+            clauses_at_level = self.get_clauses_at_level(level)
             for heart_size in range(level, 0, -1):
-                clauses_at_level = self.get_clauses_at_level(level)
-                for heart in itertools.product(self.literals, repeat=heart_size):
+                for heart in itertools.combinations(self.literals, r=heart_size):
                     heart = frozenset(heart)
                     flower = set()
                     for clause in clauses_at_level:
