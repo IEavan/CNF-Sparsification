@@ -144,8 +144,8 @@ class SparseTree():
         if self.is_leaf():
             return 0
         else:
-            return self.heart_child.num_petal_branches() + \
-                   self.petal_child.num_petal_branches() + 1
+            return max(self.heart_child.num_petal_branches(),
+                       self.petal_child.num_petal_branches() + 1)
 
     def get_leaf_formulas(self):
         if self.is_leaf():

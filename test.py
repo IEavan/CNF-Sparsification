@@ -26,9 +26,9 @@ def run_examples(k=3, eps=10, n_max=30, step=1):
     delta = int((k ** 2 * 2 ** (2 * k + 2)) / (eps ** 2))
 
     for n in tqdm(range(max(step, k), n_max + 1, step)):
-        cnf = gen_uniform(n=n, k=k, m=5*n)
+        cnf = gen_uniform(n=n, k=k, m=n**2)
         required_sparseness = 2 * k * cnf.theta(k-1, eps) * n
-        petal_bound = int(n * k / delta) + 1
+        petal_bound = int(n * k / max(1,delta)) + 1
 
         tree = sparsify.SparseTree(cnf)
         tree.build_tree(eps)
@@ -43,10 +43,10 @@ def run_examples(k=3, eps=10, n_max=30, step=1):
 
     with open("table_sparsity_{}_{}.csv".format(k ,eps), 'w') as table:
         table_writer = csv.writer(table)
-        table_writer.writerow(["k", "epsilon", "n", "achieved_sparsity", "bound",
+        table_writer.writerow(["k", "epsilon", "n", "m", "achieved_sparsity", "bound",
             "num_formulas", "tree_height", "num_petal_branches", "petal_bound"])
         for i, n in enumerate(range(max(step, k),n_max + 1,step)):
-            table_writer.writerow([k, eps, n, sparsity_results[i],
+            table_writer.writerow([k, eps, n, n**2, sparsity_results[i],
                 sparsity_bound[i], num_formulas[i],
                 tree_height[i], num_petal_branches[i],
                 petal_bounds[i]])
@@ -59,9 +59,9 @@ def example(k=3, n=3, m=5, eps=100):
     print(tree.to_latex())
 
 if __name__ == "__main__":
-    #test_simple(eps=100)
-    example()
-    #run_examples(eps=0.01, n_max=15)
-    #run_examples(eps=0.1, n_max=15)
-    #run_examples(eps=1, n_max=15)
-    #run_examples(eps=10, n_max=15)
+    # test_simple(n=20, m=4000, eps=10)
+    # example(n=10, m=42, eps=25)
+    run_examples(eps=1, n_max=30)
+    run_examples(eps=10, n_max=30)
+    run_examples(eps=20, n_max=30)
+    run_examples(eps=30, n_max=30)
